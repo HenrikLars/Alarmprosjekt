@@ -1,0 +1,277 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Threading; //Add threading support
+using System.Net; //Add network support
+using System.Net.Sockets; //Add Sockets support
+
+
+namespace Motorstyring
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+            textBox2.Text = "0";
+        }
+        public string strRecievedUDPMessage;
+        public void DoReciveUDP()
+        {
+            UdpClient sock = new UdpClient(9050);
+            IPEndPoint iep = new IPEndPoint(IPAddress.Any, 0);
+            while (true)
+            {
+                
+                try
+                { //Recieve message as UDP
+                    byte[] data = sock.Receive(ref iep);
+                    //Convert Bytes to a ASCII String
+                    strRecievedUDPMessage =
+                    Encoding.ASCII.GetString(data, 0, data.Length);
+                    //Cal the function UdpDataRecieved
+                    this.Invoke(new EventHandler(this.UdpDataRecieved));
+                    Encoding.ASCII.GetString(data, 0, data.Length);
+                    //Cal the function UdpDataRecieved
+                    
+                }
+                catch (Exception e) { }
+            }
+            sock.Close();
+        }
+        //This is only called by DoReciveUDP
+        public void UdpDataRecieved(object sender, EventArgs e)
+        { //Show the message in the form
+            textBox2.Text = strRecievedUDPMessage;
+            
+        
+        }
+        
+
+        private void TextBoxChanged()
+        {
+            //Thread.Sleep(2000);
+            
+                byte[] data = new byte[1024];
+
+                IPEndPoint ipep =
+                new IPEndPoint(IPAddress.Parse("128.39.112.21"), 9050);
+                Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram,
+                ProtocolType.Udp);
+                string sendeString = textBox1.Text.ToString() + "\n";
+
+                data = Encoding.ASCII.GetBytes(sendeString);
+                server.SendTo(data, data.Length, SocketFlags.None, ipep);
+            timer1.Enabled = false;
+            //..
+            //The rest of the code checking checkBox2 & checkBox3
+        }
+
+        
+        private Thread workerThread;
+        private void Form1_Load_1(object sender, EventArgs e)
+        {
+            workerThread = new Thread(this.DoReciveUDP);
+            workerThread.IsBackground = true; //End
+            // Start the worker thread.
+            workerThread.Start();
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+           
+            
+            
+           
+       
+        }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {   
+            
+            
+            //TextBoxChanged();
+            textBox1.Text = Convert.ToString(trackBar1.Value) + "," + alarm + "," + ","+blob +",";
+            timer1.Enabled = true;
+           
+            
+           
+
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            TextBoxChanged();
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {   
+            string[] comands = textBox2.Text.Split(','); // Make a string table of comands 
+            //int NOW2 = int.Parse(textBox2.Text);
+           
+            
+
+            if (comands[0] == "UDP")
+            {
+                pictureBox2.Visible = false;
+                if (comands.Length > 1)
+                {
+                    int NOW = Convert.ToInt32(comands[1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                    
+                    if ((NOW <= 360) && (NOW >= 0))
+                    {
+                       
+                        progressBar1.Value = NOW;
+                        //trackBar1.Value = NOW;
+                    }
+                }
+            }
+            if (comands[0] == "LOKAL")
+            {
+                pictureBox2.Visible = true;
+                if (comands.Length > 1)
+                {
+                    int WOW = Convert.ToInt32(comands[1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                    
+                    if ((WOW < 360) && (WOW >= 0))
+                    {
+                        progressBar1.Value = WOW;
+                        //trackBar1.Value = Convert.ToInt32(WOW);
+                    }
+                }
+                
+            }
+            if (comands[0] == "BILDE")
+            { 
+
+            }
+            if (comands[0] == "ALARM-PA-PI")
+            {
+                textBox3.Text = "ALARM-PÅ-LOKAL";
+                pictureBox9.Visible = false;
+                pictureBox8.Visible = true;
+                pictureBox7.Visible = false;
+            }
+            if (comands[0] == "ALARM-AV-PI")
+            {
+                textBox3.Text = "ALARM AV-LOKAL";
+                pictureBox9.Visible = false;
+                pictureBox8.Visible = false;
+                pictureBox7.Visible = false;
+                
+            }
+            if (comands[0] == "ALARM-AV-BLE")
+            {
+                textBox3.Text = "ALARM AV-BLE";
+                pictureBox9.Visible = false;
+                pictureBox8.Visible = false;
+                pictureBox7.Visible = false;
+
+            }
+            if (comands[0] == "ALARM-PA-BLE")
+            {
+                textBox3.Text = "ALARM PA-BLE";
+                pictureBox9.Visible = false;
+                pictureBox8.Visible = false;
+                pictureBox7.Visible = true;
+
+            }
+
+        }
+
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+
+        }
+        string alarm = "0";
+        string bilde = "0";
+        private void button1_Click(object sender, EventArgs e)
+        {
+            bilde = "1";
+            textBox1.Text = Convert.ToString(trackBar1.Value) + "," + alarm + "," + bilde + "," + blob + ",";
+            timer1.Enabled = true;
+
+        }
+        
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            textBox1.Text = Convert.ToString(trackBar1.Value);
+
+            if (checkBox1.Checked == true)
+            {
+                alarm = "1";
+                textBox1.Text =   "," + alarm + "," + "," + blob + ",";
+                timer1.Enabled = true;
+                textBox3.Text = "ALARM PÅ-PC";
+                pictureBox9.Visible = true;
+                pictureBox8.Visible = false;
+                pictureBox7.Visible = false;
+            }
+            else
+            {
+                pictureBox9.Visible = false;
+                pictureBox8.Visible = false;
+                pictureBox7.Visible = false;
+                alarm = "0";
+                textBox1.Text =  "," + alarm + "," + "," + blob + ",";
+                timer1.Enabled = true;
+                textBox3.Text = "ALARM AV-PC";
+            }
+
+        }
+        string blob = "0";
+        private void trackBar2_Scroll(object sender, EventArgs e)
+        {
+            
+            blob = Convert.ToString(trackBar2.Value*10);
+            textBox1.Text =   "," +"," + "," + blob + ",";
+            timer1.Enabled = true;
+            if (trackBar2.Value <= 5)
+                {
+                   
+                    pictureBox3.Visible = true;
+                    pictureBox4.Visible = false;
+                    pictureBox5.Visible = false;
+                    pictureBox6.Visible = false;
+                }
+            if ((trackBar2.Value > 5) && (trackBar2.Value <= 10))
+                {
+                    pictureBox3.Visible = false;
+                    pictureBox4.Visible = true;
+                    pictureBox5.Visible = false;
+                    pictureBox6.Visible = false;
+                }
+            if ((trackBar2.Value > 10) && (trackBar2.Value <= 15))
+                {
+                    pictureBox3.Visible = false;
+                    pictureBox4.Visible = false;
+                    pictureBox5.Visible = true;
+                    pictureBox6.Visible = false;
+                }
+            if ((trackBar2.Value > 15) && (trackBar2.Value <= 20))
+                {
+                    pictureBox3.Visible = false;
+                    pictureBox4.Visible = false;
+                    pictureBox5.Visible = false;
+                    pictureBox6.Visible = true;
+                }
+
+        }
+
+       
+        
+
+
+    }
+}
