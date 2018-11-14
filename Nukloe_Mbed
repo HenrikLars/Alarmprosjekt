@@ -1,0 +1,151 @@
+#include "mbed.h"
+BusOut motor(PA_9,PC_7,PB_6,PA_7);
+
+
+
+
+int main()
+{
+double NOW=0;
+double NOW2=0;
+int i=0;
+
+char buffer[80];
+    while (1)
+    { 
+        scanf("%[^\r\n]s",buffer);  // Read a whole line
+        getchar();
+        int grader = atoi(buffer);
+        //NOW=(NOW*1.42)/1;
+    
+            
+        if (grader<=360) 
+        { 
+       
+            if (NOW<(grader*1.42)) 
+            { 
+                for(i=((int)NOW);i<=(grader*1.42);i++)
+                { 
+                
+                
+               
+                NOW= i;
+                NOW2= (NOW/1.42);
+                printf("%d",(int)NOW2);
+                printf("\r\n");
+                
+               
+                motor=0b1001;
+                wait_ms(10);
+                motor=0b1100;
+                wait_ms(10);
+                motor=0b0110;
+                wait_ms(10);
+                motor=0b0011;
+                wait_ms(10);
+                
+                
+                 }
+                //NOW=grader;
+                
+               
+            }
+            if (NOW>(grader*1.42))
+            {
+                for(i=((int)NOW);i>=(grader*1.42);i--)
+                {
+                NOW=i;
+                NOW2= (NOW/1.42);
+                printf("%d",(int)NOW2);
+                printf("\r\n");
+                motor=0b0011;
+                wait_ms(10);
+                motor=0b0110;
+                wait_ms(10);
+                motor=0b1100;
+                wait_ms(10);
+                motor=0b1001;
+                wait_ms(10);
+                
+                }
+                
+                //NOW=NOW2;
+                
+                //NOW2=grader;
+              
+                
+            }
+        }
+        if(grader>360)
+        {
+            
+            if((grader<=616)&&(grader>=580)&&(i<513))
+            {      
+            
+            
+                for(int s=0;s<2;s++)
+                {
+                motor=0b1001;
+                wait_ms(10);
+                motor=0b1100;
+                wait_ms(10);
+                motor=0b0110;
+                wait_ms(10);
+                motor=0b0011;
+                wait_ms(10);
+                }
+            i=i+2;
+            NOW=i;
+            NOW2= (i/1.42);
+            printf("%d",(int)NOW2);
+            printf("\r\n");
+            
+            //NOW=grader;
+            //NOW=NOW2;
+            
+        }
+       
+        
+            if(( grader <= 390 )&&(grader > 360)&&(NOW>=0))                        //Når x-verdien er 0, så er den maks venstre
+            {
+            //NOW=(double)hardleft(NOW);
+            
+          
+            
+                for(int s=0;s<2;s++)
+                {
+                motor=0b0011;
+                wait_ms(10);
+                motor=0b0110;
+                wait_ms(10);
+                motor=0b1100;
+                wait_ms(10);
+                motor=0b1001;
+                wait_ms(10);
+                }
+            
+            i=i-2;
+            NOW=i;
+            NOW2= (i/1.42);
+            printf("%d",(int)NOW2);
+            printf("\r\n");
+            
+           
+            //NOW=NOW2;
+          
+        }
+      
+        //grader=(int)NOW2;
+       
+        //NOW=grader;
+        }   
+           
+       
+        
+            
+    
+        
+    
+        
+    }
+}
