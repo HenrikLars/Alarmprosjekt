@@ -1,0 +1,291 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/python
+
+import smbus            #Importerer Smbus for å kunne kjøre I2C med bus. funskjoner
+from time import *
+from SimpleCV import *  #Importerer SimpelCV for å kunne kjøre kamera funksjoner
+import os
+from flask import Flask,send_file,request  #Improterer Flask for å få tilgang til webserver fuksjoner
+import serial                 #Importerer serial for å bruke serielle funksjoner
+import socket                 #Importerer socket for å bruke Socket. funksjoner
+from threading import Thread  #Importerer thread for å kunne bruke flere threads
+import RPi.GPIO as GPIO       #Importerer GPIO, kaller de GPIO og kan bruke funksjonene som hører med
+from array import *           #Importerer Array for å bruke tabellfunksjonalitet
+import sys                    #Importerer sys funskjonen
+import binascii               #Importerer binaski funskjonen for å konvertere
+import struct                 #Importerer struct for å kunne komunisere mellom c-og pyton struct
+from bluepy.btle import UUID, Peripheral   #Importerer UUID og Peripherial for å kunne deklarer de senere
+
+app = Flask(__name__)           #Oppretter en klasse for vår web applikasjon som blir kalt på senere
+
+GPIO.setmode(GPIO.BCM)          #Indikerer at det er BCM pinnener som refferes til
+GPIO.setwarnings(False)         
+GPIO.setup(18, GPIO.IN)         #Indikerer GPIO 18 som en inngang
+GPIO.setup(23, GPIO.IN)         #Indikerer GPIO 23 som en inngang            
+GPIO.setup(24, GPIO.IN)         #Indikerer GPIO 24 som en inngang
+GPIO.setup(26, GPIO.IN,pull_up_down=GPIO.PUD_UP)    #Indikerer GPIO 26 som en inngang og som en pulldown
+GPIO.setup(17, GPIO.OUT)        #Indikerer GPIO 17 som en utgang
+GPIO.setup(27, GPIO.OUT)        #Indikerer GPIO 27 som en utgang
+GPIO.setup(21, GPIO.OUT)        #Indikerer GPIO 21 som en utgang
+GPIO.setup(22, GPIO.OUT)        #Indikerer GPIO 22 som en utgang
+
+port = "/dev/ttyACM0"           #Åpner den serielle porten
+GPIO.output(27, GPIO.LOW)       #Setter GPIO 27 lav
+GPIO.output(17, GPIO.LOW)       #Setter GPIO 17 lav
+GPIO.output(22, GPIO.LOW)       #Setter GPIO 22 lav
+GPIO.output(21, GPIO.HIGH)      #Setter GPIO 21 høy
+cam = Camera()                  #Kaller på kamera med cam senere
+
+bus = smbus.SMBus(1)        #Lager en I2C grensesnitt med /dev/i2c-1
+address=0x52         # Nunchuk I2C addressen er 0x52
+bus.write_byte_data(address,0x40,0x00)  #Bruker I2C adressen til å sende komandoen 0x40 med dataen 0x00
+bus.write_byte_data(address,0xF0,0x55)  #Bruker I2C adressen til å sende komandoen 0xF0 med dataen 0x55
+bus.write_byte_data(address,0xFB,0x00)  #Bruker I2C adressen til å sende komandoen 0xFB med dataen 0x00
+
+
+SerialIO = serial.Serial(port,9600)  #Setter opp seriell port og baudrate
+SerialIO.flushInput()                #fjerner gammle input verdier
+
+sock = socket.socket(socket.AF_INET,     # Setter opp Internet protocol og
+                     socket.SOCK_DGRAM)  # User Datagram (UDP)
+
+UDP_IP_SEND = "128.39.112.146"  # Idikerer UDPIp til ekstern pc
+UDP_IP_RECV = "0.0.0.0"         # Indikerer hvor den skal lytte
+UDP_PORT = 9050                 # indikerer hvilken Port som skal brukes til UDP
+
+
+sock.bind((UDP_IP_RECV, UDP_PORT)) #Aktiverer UDP med å sende til ekstern Ip og lytte på alle adaptere
+
+
+shared_service_uuid = UUID(0xA000) #    LARS
+button_char_uuid  = UUID(0xA001) #   LARS
+led_char_uuid     = UUID(0xA002)# LARS
+
+global state        #Lager en global variable "state"
+global size         #Lager en global variable "size"
+global val          #Lager en global variable "val"
+global val_LED      #Lager en global variable "val_Led"
+size=100            #Definerer variabelen size
+state=False         #Definerer variabelen state
+val="3"             #Definerer variabelen val
+
+def recvUDP(sock,SerialIO):
+    global size    #Knytter variabelen "size" til den globale variabelen "size"
+    global state   #Knytter variabelen "state" til den globale variabelen "state"
+
+    while True:     #While løkke
+            
+        
+        data, addr = sock.recvfrom(1280)                # Definerer at 1280 bytes er den maksimale bytes som kan motas
+        data1,data2,data3,data4,data5= data.split(",") #Splitter opp data til et array med comma skille
+        
+        data1= "%s\r\n" % str(data1)    #endrer data1 til en string med en newline
+        data2= "%s" % str(data2)        #endrer data2 til en string
+        data3= '%s' % str(data3)        #endrer data3 til en string
+        data4= "%d" % int(data4)        #endrer data4 til en string 
+        size = data4                    #Definerer variabelen size til data4
+        
+        
+        if (GPIO.input(18)==0):         #Hvis Eksternstyring/GPIO 18 LAV går den inn i her
+            SerialIO.write(data1)       #Sender data1 til Nukleo via serial overføring
+
+        if (data2=="1"):                #Hvis data2 er lik "1" går den inn her
+            state=True                  #Definerer state til True og indikerer "alarm på"
+            GPIO.output(27, state)      #Setter GPIO 27 høy
+            
+        if (data2=="0"):                #Hvis data2 er lik "0" går den inn her
+            state=False                 #Definerer state til False og indikerer "alarm Av"
+            GPIO.output(27, state)      #Setter GPIO 27 LAV
+
+        if (data3=="1"):                 #Hvis data3 er lik "1" går den inn her
+            firstImg= cam.getImage()     #Tar bilde
+            firstImg.save("GUIbilde.jpg")#Lagrer bilde som "GUIbilde.jpg"
+            data3="0"                    #Setter data3 til "0"
+
+def Web_Server():
+    global state                #Knytter variabelen "state" til den globale variabelen "state"
+    while True:                 #While løkke
+        
+        
+        @app.route('/bilder')       #Kaller på decorator og lager en mappe ("bilder")
+        def SendImage():            #funksjonen er bundet til route('/bilder')
+            return send_file('lokalbilde.jpg', mimetype='image/jpg')    #sender et "Jpg" med navn "lokalbilde" til mappen
+        @app.route('/alarm')        #Kaller på decorator og lager en mappe ("bilder")
+        def SendImage2():           #funksjonen er bundet til route('/alarm')
+            return send_file('ALARM.jpg', mimetype='image/jpg')#sender et "Jpg" med navn "ALRAM" til mappen
+        @app.route('/GUI')          #Kaller på decorator og lager en mappe ("GUI")
+        def SendImage3():           #funksjonen er bundet til route('/GUI')
+            return send_file('GUIbilde.jpg', mimetype='image/jpg')  #sender et "Jpg" med navn "GUIbilde" til mappen
+        if __name__ == '__main__':      #HMMM....
+            app.run(host='128.39.112.21') #kun HMMM...
+
+
+def BLE():
+    global val                                                        #Deklarerer variabel for knapp
+    global val_LED                                                    #Deklarerer variabel for LED
+    global state                                                      #Deklarerer variabel for alarm-state
+    if len(sys.argv) != 2:
+        print "Fatal, must pass device address:", sys.argv[0], "<device address="">"
+        quit()
+
+    p = Peripheral("ec:7d:96:2c:d2:3a", "random")                     #Legger inn MAC (Media Access Control)-adressen til klienten
+    SharedService=p.getServiceByUUID(shared_service_uuid)             #Legger inn GATTservice for BLE-klienten
+    try:
+        ch1 = SharedService.getCharacteristics(button_char_uuid)[0]   #Henter inn karakteristikken (den logiske verdien) til knapp
+        ch2 = SharedService.getCharacteristics(led_char_uuid)[0]      #Henter inn karakteristikken (den logiske verdien) til LED
+        while (ch1.supportsRead() or ch2.supportsRead()):             #Så lenge man kan lese av verdiene
+            val = binascii.b2a_hex(ch1.read())                        #Leser av knapp-verdi
+            val_LED = binascii.b2a_hex(ch2.read())                    #Leser av LED-verdi
+
+            if(state==True):                                          #Hvis alarmen blir aktivert
+               ch2.write(struct.pack('<B', 0x01));                    #Setter LED på BLE-enhet høy
+            elif (state==False):                                      #Hvis alarmen blir aktivert
+                ch2.write(struct.pack('<B', 0x00));                   #Setter LED på BLE-enhet høy
+                
+    except IOError as e:
+        print e
+
+    finally:
+        p.disconnect()                                                      
+
+def toggleLED(channel):
+    
+    global state     						 	#Knytter variabelen "state" til den globale variabelen "state"
+   
+
+    state= not state   							#Inverterer state verdien/ skrur av på alarm
+    GPIO.output(27,state) 						# Endrer Gpio 27 avhengig av stateverdien 
+
+    if (state == True):     						#Hvis state er "True", gå in her
+        message= "ALARM-PA-PI"      					#Deifinerer variablen message
+        sock.sendto(message +",", (UDP_IP_SEND, UDP_PORT)) 		#Sender Message og "," via UDP
+
+    else:                   						#Hvis state er "False" eller noe annet enn true, gå in her
+        message= "ALARM-AV-PI"      					#Deifinerer variablen message
+        sock.sendto(message +",", (UDP_IP_SEND, UDP_PORT))  		#Sender Message og "," via UDP
+
+
+t = Thread(target=recvUDP,args=(sock,SerialIO,))                         
+t.daemon=True                                                            # Stop thread when program ends
+t.start()								 #Starter tråd med UDP-meldinger
+
+l = Thread(target=Web_Server)                                           
+l.daemon=True                                                            #Stop thread when program ends
+l.start()								 #Starter tråd med overføring av bilde til web server
+
+f= Thread(target=BLE)                                                    
+f.daemon=True                                                            #Stop thread when program ends
+f.start()								 #Starter tråd med BLE-overføring 
+
+GPIO.add_event_detect(26,GPIO.BOTH, callback=toggleLED, bouncetime=50)   #Definerer en GPIO interrupt som kaller på funksjonen toggleLed ved Høy og lav flanke
+
+
+try:
+
+        	
+    while 1:
+                firstImg=cam.getImage()                                  #Tar intitialbilde for bruk i adaptive blob detection
+
+		bus.write_byte(address,0x00)                             #
+
+		time.sleep(0.01)
+		data0 =  bus.read_byte(address)
+		data1 =  bus.read_byte(address)
+		data2 =  bus.read_byte(address)
+		data3 =  bus.read_byte(address)
+		data4 =  bus.read_byte(address)
+		data5 =  bus.read_byte(address)
+		data = [data0, data1, data2, data3, data4, data5]
+                
+		joy_x = data[0]
+		joy_y = data[1]
+
+
+		z_push = data[5] & 0x01
+		
+		# turn into strings
+		str1 = "%s\r\n" % str(joy_x)
+		modified_str1 = int(str1)+361
+		str1 = "%s\r\n" % str(modified_str1)
+		
+		inputValue = GPIO.input(18)                            #Bryter på GPIO 18 brukes som bryter på Pi for å 
+                                                                       #aktivere lokal styring
+
+
+		if (inputValue == 0):                                  #Hvis lokal styring ikke blir aktivert
+		    GPIO.output(17, GPIO.LOW)                          #Setter GPIO 17 lav
+		
+		    message = "UDP"                                    #Melding som skal sendes til GUI
+                    sock.sendto(message, (UDP_IP_SEND, UDP_PORT))      #Sender melding til GUI
+                    
+                
+		else:                                                  #Hvis lokal styring blir aktivert
+                    if ((modified_str1>611) or (modified_str1<370)):   #Hvis joystikken blir holdt helt til høyre eller helt til venstre
+                        
+                        GPIO.output(17, GPIO.HIGH)                     #Setter GPIO 17 høy
+                        SerialIO.write(str1)                           #Skriver "str1" til Nukleo via seriell overføring
+                    if (z_push == 0):                                  #Z-knappen på nunchuk blir trykket inn (har en pullup-motstand)
+                        firstimg= cam.getImage()                       #Tar bilde lokalt
+                        firstimg.save("lokalbilde.jpg")                #Lagrer lokalt tatt bilde
+                        print "BILDE TATT"                             #Skriver melding om at bilde er tatt, i terminalen til Pi
+                            
+                    else:
+                        GPIO.output(17, GPIO.HIGH)                     #Setter GPIO 17 høy
+                        message = "LOKAL"                              #Melding som skal sendes til GUI
+                        sock.sendto(message, (UDP_IP_SEND, UDP_PORT))  #Sender melding til GUI
+                        
+                if (SerialIO.inWaiting() > 0):                         #Denne if-løkken skriver melding til GUI og
+                        size=100000                                    #Pi om verdiene til kameravinkelen
+			inputLine = SerialIO.readline().strip()        # read a '\n' terminated line()
+			sock.sendto(message +","+ inputLine+",", (UDP_IP_SEND, UDP_PORT)) #Sender melding til GUI
+			print message+","+inputLine                    #Skriver ut verdiene i terminalen til Pi
+			
+                
+                if((val=="01")and(state==True)):
+                    message= "ALARM-AV-BLE"                            #Melding som skal sendes til GUI
+                    state = False                                      #Oppdaterer alarm-state til False
+                    val="00"                                           #Oppdaterer verdien, slik at programmet ikke tolker det som at 
+                                                                       #"val==01, state ==True" skal behandles
+                    sock.sendto(message +",", (UDP_IP_SEND, UDP_PORT)) #Sender melding til GUI
+                elif((val=="01")and(state==False)):                    #Hvis knappen på BLE-enhet er trykket inn, og alarmen er avskrudd, så skal alarmen aktiveres.
+                    message= "ALARM-PA-BLE"                            #Melding som skal sendes til GUI
+                    state = True                                       #Oppdaterer alarm-state til True
+                    val="00"                                           #Oppdaterer verdien, slik at programmet ikke tolker det som at 
+                                                                       #"val==01, state ==True" skal behandles
+                    sock.sendto(message +",", (UDP_IP_SEND, UDP_PORT)) #Sender melding til GUI
+		
+                
+                if (state==True):                       #Bryter på GPIO 23 brukes som lokal bryter på Pi for å aktivere alarm
+                    GPIO.output(27, GPIO.HIGH)          #Setter GPIO 27 høy (brukes som signal for at alarm er på, uansett hva som har aktivert den)
+                    secondImg = cam.getImage()          #Tar bilde for gjenkjenning
+                    trackImg = secondImg - firstImg     #Ser etter endringer mellom first og second image
+                    
+                    size=float(size)                    
+                    blobs = trackImg.findBlobs(size)    #Uses adaptive blob detection (gives the coordinates of motion)
+                                                        #the findBlobs(20) gives the size of the Blob in pixels
+                                                        #that the camera-stream is divided into (the package finds the pixels that
+                                                        #are connected, and makes the blobs automatically)
+                    
+                    if blobs:
+                        GPIO.output(22, GPIO.HIGH)      #Setter GPIO 22 høy (brukes som alarmsignal)
+                        secondImg.save("ALARM.jpg")     #Lagrer alarmbilde
+                        firstImg = secondImg            #Oppdaterer bilde for neste deteksjon
+                    if not blobs:                       
+                        GPIO.output(22, GPIO.LOW)       #Setter GPIO 22 lav
+                        firstImg = secondImg            #Oppdaterer bilde for neste deteksjon
+                        
+                elif (state==False):                    #Alarm er avslått
+                    
+                    GPIO.output(27, GPIO.LOW)           #Setter GPIO 27 lav
+                    GPIO.output(22, GPIO.LOW)           #Setter GPIO 22 lav
+                    
+                
+                
+		
+	
+except IOError as e:
+    print e
+
+finally:
+    p.disconnect()
+
