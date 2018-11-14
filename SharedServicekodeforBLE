@@ -32,7 +32,7 @@ public:
         GattService         sharedService(SharedService::SHARED_SERVICE_UUID, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));
         ble.gattServer().addService(sharedService);
     }
-
+    
     GattAttribute::Handle_t getValueHandle() const 
     {
         return ledState.getValueHandle();       
