@@ -3,17 +3,17 @@
 
 import smbus            #Importerer Smbus for å kunne kjøre I2C med bus. funskjoner
 from time import *
-from SimpleCV import *  #Importerer SimpelCV for å kunne kjøre kamera funksjoner
+from SimpleCV import *  #Importerer fra SimpleCV for å kunne kjøre kamera funksjoner
 import os
-from flask import Flask,send_file,request  #Improterer Flask for å få tilgang til webserver fuksjoner
-import serial                 #Importerer serial for å bruke serielle funksjoner
-import socket                 #Importerer socket for å bruke Socket. funksjoner
-from threading import Thread  #Importerer thread for å kunne bruke flere threads
-import RPi.GPIO as GPIO       #Importerer GPIO, kaller de GPIO og kan bruke funksjonene som hører med
-from array import *           #Importerer Array for å bruke tabellfunksjonalitet
-import sys                    #Importerer sys funskjonen
-import binascii               #Importerer binaski funskjonen for å konvertere
-import struct                 #Importerer struct for å kunne komunisere mellom c-og pyton struct
+from flask import Flask,send_file,request  #Importerer Flask for å få tilgang til webserver fuksjoner
+import serial                              #Importerer serial for å bruke serielle funksjoner
+import socket                              #Importerer socket for å bruke Socket. funksjoner
+from threading import Thread               #Importerer thread for å kunne bruke flere threads
+import RPi.GPIO as GPIO                    #Importerer GPIO, kaller de GPIO og kan bruke funksjonene som hører med
+from array import *                        #Importerer Array for å bruke tabellfunksjonalitet
+import sys                                 #Importerer sys funskjonen
+import binascii                            #Importerer binaski funskjonen for å konvertere
+import struct                              #Importerer struct for å kunne komunisere mellom c-og python struct
 from bluepy.btle import UUID, Peripheral   #Importerer UUID og Peripherial for å kunne deklarer de senere
 
 app = Flask(__name__)           #Oppretter en klasse for vår web applikasjon som blir kalt på senere
