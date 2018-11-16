@@ -36,13 +36,8 @@ char buffer[80];                            //deffienerer en tabell som buffer m
                 motor=0b0110;
                 wait_ms(10);
                 motor=0b0011;
-                wait_ms(10);
-                
-                
-                 }
-                
-                
-               
+                wait_ms(10);                
+                }
             }
             if (NOW>(grader*1.42))      //Hvis NoW er større enn grader ganger 1.42, gå inn her
             {
@@ -88,18 +83,11 @@ char buffer[80];                            //deffienerer en tabell som buffer m
             NOW2= (i/1.42);         //endrer NOW2 til NOW/1.42
             printf("%d",(int)NOW2); //skriver til seriell port intverdien til NOW2
             printf("\r\n");         //skiver til seriell port en newline
-            
-            
-            
-        }
+            }
        
         
             if(( grader <= 390 )&&(grader > 360)&&(NOW>=0))                        //hvis grader er mindre enn 390 og større enn 360 sammtidig som NOW er større enn 0
             {
-
-            
-          
-            
                 for(int s=0;s<2;s++)    //for løkke som går 2 ganger
                 {
                 motor=0b0011;
@@ -117,23 +105,9 @@ char buffer[80];                            //deffienerer en tabell som buffer m
             NOW2= (i/1.42);     //endrer NOW2 til NOW/1.42
             printf("%d",(int)NOW2);     //skriver til seriell port intverdien til NOW2
             printf("\r\n");             //skiver til seriell port en newline
-            
-           
-            
-          
-        }
-      
-    
-       
-      
+            }
+
         }   
-           
-       
-        
-            
-    
-        
-    
-        
+     
     }
 }
