@@ -1,44 +1,38 @@
-#include "mbed.h"
-BusOut motor(PA_9,PC_7,PB_6,PA_7);
-
-
-
+#include "mbed.h"                           //inkluder et stort biblotek med mange funskjoner
+BusOut motor(PA_9,PC_7,PB_6,PA_7);          ///setter opp en outputBus som Motor med gitte utganger
 
 int main()
 {
-double NOW=0;
-double NOW2=0;
-int i=0;
+double NOW=0;                               //deffinerer en double NOW som 0
+double NOW2=0;                              //deffinerer en double NOW2 som 0
+int i=0;                                    //deffinerer en int i til 0
 
-char buffer[80];
+char buffer[80];                            //deffienerer en tabell som buffer med størelse 80
     while (1)
     { 
-        scanf("%[^\r\n]s",buffer);  // Read a whole line
-        getchar();
-        int grader = atoi(buffer);
-        //NOW=(NOW*1.42)/1;
+        scanf("%[^\r\n]s",buffer);  // Leser seriell informasjon og lagrer i buffer
+        getchar();                  //leser en newline
+        int grader = atoi(buffer);  //deffinerer int grader som int verdien til stringen buffer
     
             
-        if (grader<=360) 
+        if (grader<=360)                //hvis grader er mindre eller lik 360
         { 
        
-            if (NOW<(grader*1.42)) 
+            if (NOW<(grader*1.42))      //hvis NOW er mindre en grader ganger 1.42, gå inn her
             { 
-                for(i=((int)NOW);i<=(grader*1.42);i++)
+                for(i=((int)NOW);i<=(grader*1.42);i++)      //for løkke som går  differansen mellom NOW og grader*1.42
                 { 
-                
-                
                
-                NOW= i;
-                NOW2= (NOW/1.42);
-                printf("%d",(int)NOW2);
-                printf("\r\n");
+                NOW= i;                 //endrer Now verdi til i verdi
+                NOW2= (NOW/1.42);       //endrer NOW2 til NOW/1.42
+                printf("%d",(int)NOW2); //skriver til seriell port intverdien til NOW2
+                printf("\r\n");         //skiver til seriell port en newline
                 
                
                 motor=0b1001;
                 wait_ms(10);
                 motor=0b1100;
-                wait_ms(10);
+                wait_ms(10);                //styrer motor til høyre
                 motor=0b0110;
                 wait_ms(10);
                 motor=0b0011;
@@ -46,21 +40,21 @@ char buffer[80];
                 
                 
                  }
-                //NOW=grader;
+                
                 
                
             }
-            if (NOW>(grader*1.42))
+            if (NOW>(grader*1.42))      //Hvis NoW er større enn grader ganger 1.42, gå inn her
             {
-                for(i=((int)NOW);i>=(grader*1.42);i--)
+                for(i=((int)NOW);i>=(grader*1.42);i--)      //for løkke som går differansen mellom NOW og grader*1.42
                 {
-                NOW=i;
-                NOW2= (NOW/1.42);
-                printf("%d",(int)NOW2);
-                printf("\r\n");
+                NOW=i;                      //endrer Now verdi til i verdi
+                NOW2= (NOW/1.42);           //endrer NOW2 til NOW/1.42
+                printf("%d",(int)NOW2);     //skriver til seriell port intverdien til NOW2
+                printf("\r\n");             //skiver til seriell port en newline
                 motor=0b0011;
                 wait_ms(10);
-                motor=0b0110;
+                motor=0b0110;           //styrer motor til venstre
                 wait_ms(10);
                 motor=0b1100;
                 wait_ms(10);
@@ -68,55 +62,49 @@ char buffer[80];
                 wait_ms(10);
                 
                 }
-                
-                //NOW=NOW2;
-                
-                //NOW2=grader;
-              
-                
+               
             }
         }
-        if(grader>360)
+        if(grader>360)      //hvis grader er større enn 360 gå inn her
         {
             
-            if((grader<=616)&&(grader>=580)&&(i<513))
+            if((grader<=616)&&(grader>=580)&&(i<513)) // hvis grader er mellom 616 og 580 og i er mindre enn 513, gå inn her
             {      
             
             
-                for(int s=0;s<2;s++)
+                for(int s=0;s<2;s++)                //for løkke som går 2 ganger
                 {
                 motor=0b1001;
                 wait_ms(10);
                 motor=0b1100;
-                wait_ms(10);
+                wait_ms(10);            //styrer motor til høyre
                 motor=0b0110;
                 wait_ms(10);
                 motor=0b0011;
                 wait_ms(10);
                 }
-            i=i+2;
-            NOW=i;
-            NOW2= (i/1.42);
-            printf("%d",(int)NOW2);
-            printf("\r\n");
+            i=i+2;                  //endrer i til 2+i
+            NOW=i;                  //endrer Now til i
+            NOW2= (i/1.42);         //endrer NOW2 til NOW/1.42
+            printf("%d",(int)NOW2); //skriver til seriell port intverdien til NOW2
+            printf("\r\n");         //skiver til seriell port en newline
             
-            //NOW=grader;
-            //NOW=NOW2;
+            
             
         }
        
         
-            if(( grader <= 390 )&&(grader > 360)&&(NOW>=0))                        //Når x-verdien er 0, så er den maks venstre
+            if(( grader <= 390 )&&(grader > 360)&&(NOW>=0))                        //hvis grader er mindre enn 390 og større enn 360 sammtidig som NOW er større enn 0
             {
-            //NOW=(double)hardleft(NOW);
+
             
           
             
-                for(int s=0;s<2;s++)
+                for(int s=0;s<2;s++)    //for løkke som går 2 ganger
                 {
                 motor=0b0011;
                 wait_ms(10);
-                motor=0b0110;
+                motor=0b0110;           //styrer motor til venstre
                 wait_ms(10);
                 motor=0b1100;
                 wait_ms(10);
@@ -124,20 +112,20 @@ char buffer[80];
                 wait_ms(10);
                 }
             
-            i=i-2;
-            NOW=i;
-            NOW2= (i/1.42);
-            printf("%d",(int)NOW2);
-            printf("\r\n");
+            i=i-2;              //endrer i til i-2
+            NOW=i;              // //endrer Now til i
+            NOW2= (i/1.42);     //endrer NOW2 til NOW/1.42
+            printf("%d",(int)NOW2);     //skriver til seriell port intverdien til NOW2
+            printf("\r\n");             //skiver til seriell port en newline
             
            
-            //NOW=NOW2;
+            
           
         }
       
-        //grader=(int)NOW2;
+    
        
-        //NOW=grader;
+      
         }   
            
        
