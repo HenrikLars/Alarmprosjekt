@@ -20,15 +20,15 @@
 #include "ble/BLE.h"
 #include "SharedService.h"
 
-DigitalOut BLE_LED(LED1, 0);      //Deklarerer LED1 for å bruke som BLE-lys for at alarm er skrudd på
+DigitalOut BLE_LED(LED1, 0);      //Deklarerer LED1 for å bruke som LED for at alarm er skrudd på
 
-InterruptIn button(BUTTON1);  //Deklarerer KEY1 som button med interrupt-funksjon
+InterruptIn button(BUTTON1);  //Deklarerer KEY1 som knapp med interrupt-funksjon
 
 const static char     DEVICE_NAME[] = "HenrikLars";                //Deklarerer Complete Local Name som jeg kan 
                                                                    //finne ved bruk av blesca.py eller applikasjon på mobiltlf      
 static const uint16_t uuid16_list[] = {SharedService::SHARED_SERVICE_UUID};
 
-static SharedService *sharedServicePtr;                            //
+static SharedService *sharedServicePtr;
 
 enum     //Deklarerer tre tilstander for button
 {
