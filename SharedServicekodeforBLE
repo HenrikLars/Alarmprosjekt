@@ -19,8 +19,9 @@
 
 class SharedService {
 public:
-    const static uint16_t SHARED_SERVICE_UUID              = 0xA000;    //Gir en unik UUID til Servicen som inneholder begge karakteristikkene
-    const static uint16_t BUTTON_STATE_CHARACTERISTIC_UUID = 0xA001;    //Gir en unik UUID til karakteristikken til button
+    const static uint16_t SHARED_SERVICE_UUID              = 0xA000;    //Gir en unik UUID til Servicen som inneholder 
+                                                                        //begge karakteristikkene
+    const static uint16_t BUTTON_STATE_CHARACTERISTIC_UUID = 0xA001;    //Gir en unik UUID til karakteristikken til knapp
     const static uint16_t LED_STATE_CHARACTERISTIC_UUID = 0xA002;       //Gir en unik UUID til karakteristikken til LED
 
     SharedService(BLE &_ble, bool buttonPressedInitial, bool initialValueForLEDCharacteristic) :
@@ -50,8 +51,8 @@ public:
 
 private:
     BLE                              &ble;
-    ReadOnlyGattCharacteristic<bool>  buttonState;
-    ReadWriteGattCharacteristic<bool>  ledState;
+    ReadOnlyGattCharacteristic<bool>  buttonState;         //Man kan kun lese av karakteristikk som tilhører knapp
+    ReadWriteGattCharacteristic<bool>  ledState;           //Man kan både lese av og skrive til LED-karakteristikk
 };
 
 #endif /* #ifndef __SHARED_SERVICE_H__ */
