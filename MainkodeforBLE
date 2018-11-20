@@ -24,10 +24,11 @@ DigitalOut BLE_LED(LED1, 0);      //Deklarerer LED1 for å bruke som BLE-lys for
 
 InterruptIn button(BUTTON1);  //Deklarerer KEY1 som button med interrupt-funksjon
 
-const static char     DEVICE_NAME[] = "HenrikLars";                          //Deklarerer Complete Local Name som jeg kan finne ved bruk av blesca.py eller applikasjon på mobiltlf      
+const static char     DEVICE_NAME[] = "HenrikLars";                //Deklarerer Complete Local Name som jeg kan 
+                                                                   //finne ved bruk av blesca.py eller applikasjon på mobiltlf      
 static const uint16_t uuid16_list[] = {SharedService::SHARED_SERVICE_UUID};
 
-static SharedService *sharedServicePtr;    //Deklarerer peker som skal sende buttonState-verdi og led-informasjoner til Shared Service UUID for bruk i python-script
+static SharedService *sharedServicePtr;                            //
 
 enum     //Deklarerer tre tilstander for button
 {
@@ -135,12 +136,12 @@ int main(void)
     
     while (true)
     {
-        if (buttonState != IDLE) 
+        if (buttonState != IDLE)   
         {
             sharedServicePtr->updateButtonState(buttonState);
-            sharedServicePtr->updateLedState(BLE_LED);  
+            sharedServicePtr->updateLedState(BLE_LED);
             buttonState = IDLE;
         }
-        ble.waitForEvent();
+        ble.waitForEvent();        //Oppdaterer LED på HR1017 når knapp trykkes eller når Pi-bryter sender signal
     }
 }
