@@ -50,8 +50,8 @@ public:
 
 private:
     BLE                              &ble;
-    ReadOnlyGattCharacteristic<bool>  buttonState;    //Man kan lese av verdien til button
-    ReadWriteGattCharacteristic<bool>  ledState;      //Man kan både lese av og skrive til LED
+    ReadOnlyGattCharacteristic<bool>  buttonState;
+    ReadWriteGattCharacteristic<bool>  ledState;
 };
 
 #endif /* #ifndef __SHARED_SERVICE_H__ */
