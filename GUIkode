@@ -1,5 +1,5 @@
 
-using System;                        //Legger til system støtte
+using System;                       //Legger til system støtte
 using System.Collections.Generic;   //Legger til system Collection støtte
 using System.ComponentModel;        //Legger til system Collection støtte
 using System.Data;                  //Legger til system Data støtte
@@ -25,9 +25,9 @@ namespace Motorstyring
         public string strRecievedUDPMessage;
         public void DoReciveUDP()
         {
-            UdpClient sock = new UdpClient(9050);   //Deffinerer UDP porten(9050) for sock
-            IPEndPoint iep = new IPEndPoint(IPAddress.Any, 0); //deffienerer lytte Ipadresse(alle) for iep
-            while (true)                    //Gjør dette hele tiden:
+            UdpClient sock = new UdpClient(9050);              //Definerer UDP porten(9050) for sock
+            IPEndPoint iep = new IPEndPoint(IPAddress.Any, 0); //Definerer lytte Ipadresse(alle) for iep
+            while (true)                                       //Gjør dette hele tiden:
             {
                 
                 try
@@ -64,20 +64,20 @@ namespace Motorstyring
                 IPEndPoint ipep =
                 new IPEndPoint(IPAddress.Parse("128.39.112.21"), 9050); //Skriver kun til Ipen til Pien
                 Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram,
-                ProtocolType.Udp);                  //Deffinerer Socket type som UDP
-                string sendeString = textBox1.Text.ToString() + "\n"; //Deffinerer en Sendstring som teksten i tektboks1 pluss en newline
+                ProtocolType.Udp);                  //Definerer Socket type som UDP
+                string sendeString = textBox1.Text.ToString() + "\n"; //Definerer en Sendstring som teksten i tektboks1 pluss en newline
 
-                data = Encoding.ASCII.GetBytes(sendeString);           //Deffinerer data som UDP stingen omgjort til Bytes
-                server.SendTo(data, data.Length, SocketFlags.None, ipep);   //sender data
-                timer1.Enabled = false;                                     //stoper timer interruptet
+                data = Encoding.ASCII.GetBytes(sendeString);           //Definerer data som UDP stingen omgjort til Bytes
+                server.SendTo(data, data.Length, SocketFlags.None, ipep);   //Sender data
+                timer1.Enabled = false;                                     //Stopper timer interruptet
             
         }
 
         
-        private Thread workerThread;   //deffinerer en thread                      
-        private void Form1_Load_1(object sender, EventArgs e) //7 kjøres bare ved oppstart av programmet for å 
+        private Thread workerThread;                          //Definerer en thread                      
+        private void Form1_Load_1(object sender, EventArgs e) //Kjøres bare ved oppstart av programmet for å 
         {
-            workerThread = new Thread(this.DoReciveUDP);  //starter med å kalle på lytte på UDP funskjonen
+            workerThread = new Thread(this.DoReciveUDP);  //Starter med å kalle på lytte på UDP funskjonen
             workerThread.IsBackground = true; //stop
             // starter en arbeidsthread
             workerThread.Start();
@@ -92,39 +92,39 @@ namespace Motorstyring
        
         }
 
-        private void trackBar1_Scroll(object sender, EventArgs e) ///kaller på funksjonen ved skroll på trackbar1
+        private void trackBar1_Scroll(object sender, EventArgs e) //Kaller på funksjonen ved skroll på trackbar1
         {   
             
             
            
             textBox1.Text = Convert.ToString(trackBar1.Value) + "," + "," + ","+blob +",";      //Skriver i textboks1 en string med  blobverdien
-            timer1.Enabled = true;                                                              //kaller på timer1
+            timer1.Enabled = true;                                                              //Kaller på timer1
            
             
            
 
         }
 
-        private void timer1_Tick(object sender, EventArgs e)                    //teller til 2000ms
+        private void timer1_Tick(object sender, EventArgs e)                    //Teller til 2000ms
         {
-            TextBoxChanged();                                                           //kaller på  funksjonen TextBoxChanged();
+            TextBoxChanged();                                                   //kaller på  funksjonen TextBoxChanged();
         }
 
-        private void textBox2_TextChanged(object sender, EventArgs e)  //kaller på funksjonen hvis tekstbox2 endrer seg
+        private void textBox2_TextChanged(object sender, EventArgs e)  //Kaller på funksjonen hvis tekstbox2 endrer seg
         {   
-            string[] comands = textBox2.Text.Split(','); // lager en sting tabell som comands fra tekstboks2(som er meldinger fra PI)
+            string[] comands = textBox2.Text.Split(','); //Lager en sting tabell som comands fra tekstboks2(som er meldinger fra PI)
             
            
             
 
-            if (comands[0] == "UDP")                    //hvis commands er "UDP" gå inn her
+            if (comands[0] == "UDP")                    //Hvis commands er "UDP" gå inn her
             {
-                pictureBox2.Visible = false;            //skjuler picturebox2
+                pictureBox2.Visible = false;            //Skjuler picturebox2
                 if (comands.Length > 1)                 //Hvis lengden på tabbelen er større enn 1
                 {
                     int NOW = Convert.ToInt32(comands[1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat); //Deffienerer en int som NOW og er 2 verdi i tabellen
                     
-                    if ((NOW <= 360) && (NOW >= 0)) //hvis NOW er mindre enn 360 og større enn 0
+                    if ((NOW <= 360) && (NOW >= 0)) //Hvis NOW er mindre enn 360 og større enn 0
                     {
                        
                         progressBar1.Value = NOW;    //Opptaterer progressbar utfra positionen til steppermotoren
@@ -132,53 +132,54 @@ namespace Motorstyring
                     }
                 }
             }
-            if (comands[0] == "LOKAL")                     //hvis commands er "LOKAL"  gå inn her
+            if (comands[0] == "LOKAL")                     //Hvis commands er "LOKAL"  gå inn her
             {
-                pictureBox2.Visible = true;                //viser pikturebox2
-                if (comands.Length > 1)                     //Hvis lengden på tabbelen er større enn 1
+                pictureBox2.Visible = true;                //Viser picturebox2
+                if (comands.Length > 1)                     //Hvis lengden på tabellen er større enn 1
                 {
-                    int WOW = Convert.ToInt32(comands[1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat); //Deffienerer en int som WOW og er 2 verdi i tabellen
+                    int WOW = Convert.ToInt32(comands[1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat); 
+                    //Defienerer en int som WOW og er 2 verdi i tabellen
 
-                    if ((WOW < 360) && (WOW >= 0)) //hvis WOW er mindre enn 360 og større enn 0
+                    if ((WOW < 360) && (WOW >= 0))  //hvis WOW er mindre enn 360 og større enn 0
                     {
-                        progressBar1.Value = WOW;       //Opptaterer progressbar utfra positionen til steppermotoren
+                        progressBar1.Value = WOW;   //Oppdaterer progressbar utfra positionen til steppermotoren
                        
                     }
                 }
                 
             }
-            if (comands[0] == "BILDE")                  //hvis commands er "BILDE"  gå inn her
+            if (comands[0] == "BILDE")                  //Hvis commands er "BILDE"  gå inn her
             { 
                 //mulige oppdateringer i programmet
             }
-            if (comands[0] == "ALARM-PA-PI")            //hvis commands er "ALARM-PA-PI"  gå inn her
+            if (comands[0] == "ALARM-PA-PI")            //Hvis commands er "ALARM-PA-PI"  gå inn her
             {
-                textBox3.Text = "ALARM-PÅ-LOKAL";       //skriver inn ALARM-PÅ-LOKAL i textboks3
+                textBox3.Text = "ALARM-PÅ-LOKAL";       //Skriver inn ALARM-PÅ-LOKAL i textboks3
                 pictureBox9.Visible = false;
-                pictureBox8.Visible = true;             //skjuler Bilde7 og 9, viser bilde 8
+                pictureBox8.Visible = true;             //Skjuler Bilde7 og 9, viser bilde 8
                 pictureBox7.Visible = false;
             }
-            if (comands[0] == "ALARM-AV-PI")            //hvis commands er "ALARM-AV-PI"  gå inn her
+            if (comands[0] == "ALARM-AV-PI")            //Hvis commands er "ALARM-AV-PI"  gå inn her
             {
-                textBox3.Text = "ALARM AV-LOKAL";          //skriver inn ALARM-AV-LOKAL i textboks3
+                textBox3.Text = "ALARM AV-LOKAL";       //Skriver inn ALARM-AV-LOKAL i textboks3
                 pictureBox9.Visible = false;
-                pictureBox8.Visible = false;                //skjuler Bilde7-9
+                pictureBox8.Visible = false;            //Skjuler Bilde7-9
                 pictureBox7.Visible = false;
                 
             }
-            if (comands[0] == "ALARM-AV-BLE")           //hvis commands er "ALARM-AV-BLE"  gå inn her
+            if (comands[0] == "ALARM-AV-BLE")           //Hvis commands er "ALARM-AV-BLE"  gå inn her
             {
-                textBox3.Text = "ALARM AV-BLE";         //skriver inn ALARM-AV-BLE i textboks3
+                textBox3.Text = "ALARM AV-BLE";         //Skriver inn ALARM-AV-BLE i textboks3
                 pictureBox9.Visible = false;
-                pictureBox8.Visible = false;            //skjuler Bilde7-9
+                pictureBox8.Visible = false;            //Skjuler Bilde7-9
                 pictureBox7.Visible = false;
 
             }
-            if (comands[0] == "ALARM-PA-BLE")           //hvis commands er "ALARM-PA-BLE"  gå inn her
+            if (comands[0] == "ALARM-PA-BLE")           //Hvis commands er "ALARM-PA-BLE"  gå inn her
             {
-                textBox3.Text = "ALARM PA-BLE";         //skriver inn ALARM-PA-BLE i textboks3
+                textBox3.Text = "ALARM PA-BLE";         //Skriver inn ALARM-PA-BLE i textboks3
                 pictureBox9.Visible = false;
-                pictureBox8.Visible = false;            //skjuler Bilde8 og 9, viser bilde 7
+                pictureBox8.Visible = false;            //Skjuler Bilde8 og 9, viser bilde 7
                 pictureBox7.Visible = true;
 
             }
@@ -194,76 +195,76 @@ namespace Motorstyring
         {
 
         }
-        string alarm = "0";                     //Deffinerer stringen alarm til "0"
-        string bilde = "0";                      //Deffinerer stringen bilde til "0"
-        private void button1_Click(object sender, EventArgs e) //kalles på fra GUI ved click
+        string alarm = "0";                                    //Definerer stringen alarm til "0"
+        string bilde = "0";                                    //Definerer stringen bilde til "0"
+        private void button1_Click(object sender, EventArgs e) //Kalles på fra GUI ved click
         {
-            bilde = "1";                                    //Deffinerer stringen bilde til "1"
-            textBox1.Text =  "," + "," + bilde + "," + ","; //Skriver i textboks1 en string med  Bilde og kommaverdier
-            timer1.Enabled = true;                          //kaller på timer1
+            bilde = "1";                                       //Definerer stringen bilde til "1"
+            textBox1.Text =  "," + "," + bilde + "," + ",";    //Skriver i textboks1 en string med  Bilde og kommaverdier
+            timer1.Enabled = true;                             //Kaller på timer1
 
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e) ////kalles på fra GUI ved click
+        private void checkBox1_CheckedChanged(object sender, EventArgs e) //Kalles på fra GUI ved click
         {
             
 
             if (checkBox1.Checked == true) //Hvis Checkbox1 er haket av går inn her
             {
-                alarm = "1";                    //endrer variabelen alarm til "1"
+                alarm = "1";                    //Endrer variabelen alarm til "1"
                 textBox1.Text =   "," + alarm + "," + "," + ",";        //Endrer textbox1 til commaverdier og alarm verdien
-                timer1.Enabled = true;                                  //kaller på timer funksjonen
-                textBox3.Text = "ALARM PÅ-PC";                          //endrer textbox3 til "ALARM PÅ-PC";
+                timer1.Enabled = true;                                  //Kaller på timer funksjonen
+                textBox3.Text = "ALARM PÅ-PC";                          //Endrer textbox3 til "ALARM PÅ-PC";
                 pictureBox9.Visible = true;
-                pictureBox8.Visible = false;                            ////skjuler Bilde8 og 7, viser bilde 9
+                pictureBox8.Visible = false;                            //Skjuler Bilde8 og 7, viser bilde 9
                 pictureBox7.Visible = false;
             }
             else
             {
                 pictureBox9.Visible = false;
-                pictureBox8.Visible = false;                        ////skjuler Bilde7 til 9
+                pictureBox8.Visible = false;                        //Skjuler Bilde7 til 9
                 pictureBox7.Visible = false;
-                alarm = "0";                                        //setter alarm til "0"
-                textBox1.Text = "," + alarm + "," + "," + ",";     //Endrer textbox1 til commaverdier og alarm verdien
-                timer1.Enabled = true;                               //kaller på timer funksjonen
-                textBox3.Text = "ALARM AV-PC";                          //endrer textbox3 til "ALARM AV-PC";
+                alarm = "0";                                        //Setter alarm til "0"
+                textBox1.Text = "," + alarm + "," + "," + ",";      //Endrer textbox1 til commaverdier og alarm verdien
+                timer1.Enabled = true;                              //Kaller på timer funksjonen
+                textBox3.Text = "ALARM AV-PC";                      //Endrer textbox3 til "ALARM AV-PC";
             }
 
         }
-        string blob = "0";                      //deffinerer en string som blob til "0"
-        private void trackBar2_Scroll(object sender, EventArgs e) //kaller på funsksjonen ved å skrolle
+        string blob = "0";                                        //Definerer en string som blob til "0"
+        private void trackBar2_Scroll(object sender, EventArgs e) //Kaller på funksjonen ved å skrolle
         {
             
-            blob = Convert.ToString(trackBar2.Value*10);            //endrer blob stringen til 10 ganger verdien av trackbar2
+            blob = Convert.ToString(trackBar2.Value*10);           //Endrer blob stringen til 10 ganger verdien av trackbar2
             textBox1.Text = "," + "," + "," + blob + ",";          //Endrer textbox1 til commaverdier og blob verdien
-            timer1.Enabled = true;                                  //kaller på timer funksjonen
+            timer1.Enabled = true;                                 //Kaller på timer funksjonen
 
-            if (trackBar2.Value <= 5)                       //hvis trackbar2 er mindre elelr erlik 5, gå inn her
+            if (trackBar2.Value <= 5)                       //Hvis trackbar2 er mindre elelr erlik 5, gå inn her
                 {
                    
                     pictureBox3.Visible = true;
                     pictureBox4.Visible = false;
-                    pictureBox5.Visible = false;            //skjuler bilde 4-6 og viser bilde 3
+                    pictureBox5.Visible = false;            //Skjuler bilde 4-6 og viser bilde 3
                     pictureBox6.Visible = false;
                 }
-            if ((trackBar2.Value > 5) && (trackBar2.Value <= 10))       //hvis trackbar2 er mellom 6 og 10, gå inn her
+            if ((trackBar2.Value > 5) && (trackBar2.Value <= 10))    //Hvis trackbar2 er mellom 6 og 10, gå inn her
                 {
                     pictureBox3.Visible = false;
-                    pictureBox4.Visible = true;                  //skjuler bilde 5-6,3 og viser bilde 4
+                    pictureBox4.Visible = true;                       //Skjuler bilde 5-6,3 og viser bilde 4
                     pictureBox5.Visible = false;
                     pictureBox6.Visible = false;
                 }
-            if ((trackBar2.Value > 10) && (trackBar2.Value <= 15))          //hvis trackbar2 er mellom 11 og 15, gå inn her
+            if ((trackBar2.Value > 10) && (trackBar2.Value <= 15))     //Hvis trackbar2 er mellom 11 og 15, gå inn her
                 {
                     pictureBox3.Visible = false;
-                    pictureBox4.Visible = false;                        //skjuler bilde 3-4,6 og viser bilde 5
+                    pictureBox4.Visible = false;                       //Skjuler bilde 3-4,6 og viser bilde 5
                     pictureBox5.Visible = true;
                     pictureBox6.Visible = false;
                 }
-            if ((trackBar2.Value > 15) && (trackBar2.Value <= 20))      //hvis trackbar2 er mellom 16 og 20, gå inn her
+            if ((trackBar2.Value > 15) && (trackBar2.Value <= 20))     //Hvis trackbar2 er mellom 16 og 20, gå inn her
                 {
                     pictureBox3.Visible = false;
-                    pictureBox4.Visible = false;                    //skjuler bilde 3-5 og viser bilde 6
+                    pictureBox4.Visible = false;                    //Skjuler bilde 3-5 og viser bilde 6
                     pictureBox5.Visible = false;
                     pictureBox6.Visible = true;                    
                 }
